@@ -38,6 +38,21 @@
     "jsonwebtoken": "^9.0.0",
     "passport-strategy": "^1.0.0"
   },
+  "devDependencies": {
+    "@babel/cli": "^7.21.5",
+    "@babel/core": "^7.21.8",
+    "@babel/eslint-parser": "^7.21.8",
+    "@babel/preset-env": "^7.21.5",
+    "@natlibfi/eslint-config-melinda-backend": "^3.0.0",
+    "babel-plugin-istanbul": "^6.1.1",
+    "chai": "^4.3.7",
+    "chai-passport-strategy": "^3.0.0",
+    "chokidar-cli": "^3.0.0",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.41.0",
+    "mocha": "^10.2.0",
+    "nyc": "^15.1.0"
+  },
   "eslintConfig": {
     "parser": "@babel/eslint-parser",
     "extends": "@natlibfi/melinda-backend"
@@ -76,20 +91,5 @@
     "statements": 80,
     "functions": 80,
     "branches": 80
-  },
-  "devDependencies": {
-    "@babel/cli": "^7.21.5",
-    "@babel/core": "^7.21.8",
-    "@babel/eslint-parser": "^7.21.8",
-    "@babel/preset-env": "^7.21.5",
-    "@natlibfi/eslint-config-melinda-backend": "^3.0.0",
-    "babel-plugin-istanbul": "^6.1.1",
-    "chai": "^4.3.7",
-    "chai-passport-strategy": "^3.0.0",
-    "chokidar-cli": "^3.0.0",
-    "cross-env": "^7.0.3",
-    "eslint": "^8.41.0",
-    "mocha": "^10.2.0",
-    "nyc": "^15.1.0"
   }
 }
