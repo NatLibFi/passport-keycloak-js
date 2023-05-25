@@ -17,7 +17,7 @@ Does **not** allow configuration for ignoring token expiration.
 
 #### ES modules
 ```javascript
-import {default as KeycloakStrategy} from '@natlibfi/passport-keycloak'
+import {KeycloakStrategy} from '@natlibfi/passport-keycloak'
 ```
 
 ### Configuration
