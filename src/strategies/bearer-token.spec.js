@@ -20,18 +20,27 @@
 import chai, {expect} from 'chai';
 import chaiPassportStrategy from 'chai-passport-strategy';
 import {generateKeyPairSync} from 'crypto';
+import nock from 'nock';
 import jwt from 'jsonwebtoken';
 
 import Strategy from './bearer-token';
 
 chai.use(chaiPassportStrategy);
 
-const {privateKey, publicKey} = generateKeyPairSync('rsa', {modulusLength: 2048, publicKeyEncoding: {type: 'spki', format: 'pem'}});
-const signOpts = {algorithm: 'RS256'};
+const {privateKey, publicKey} = generateKeyPairSync('rsa', {modulusLength: 2048, publicKeyEncoding: {type: 'spki', format: 'jwk'}});
+const signOpts = {algorithm: 'RS256', header: {kid: 'foo.keyid'}};
 
 describe('strategies/bearer-token', () => {
+  afterEach(() => nock.cleanAll());
+
   it('Should call success() when token is valid', () => {
+    const scope = nock('http://www.example.com')
+      .get('/realms/foo/protocol/openid-connect/certs')
+      .times(1)
+      .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
+
     const payload = {
+      kid: 'foo.keyid',
       id: 'foo.user',
       aud: 'foo.audience',
       iss: 'foo.issuer',
@@ -41,7 +50,7 @@ describe('strategies/bearer-token', () => {
     const token = jwt.sign(payload, privateKey, signOpts);
 
     const strategy = new Strategy({
-      publicKey,
+      jwksUrl: 'http://www.example.com/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
       audience: 'foo.audience',
       issuer: 'foo.issuer'
@@ -54,6 +63,7 @@ describe('strategies/bearer-token', () => {
         .success(user => {
           try {
             expect(user).to.eql(payload);
+            expect(scope.isDone()).to.eql(true);
             resolve();
           } catch (err) {
             reject(err);
@@ -67,9 +77,15 @@ describe('strategies/bearer-token', () => {
   });
 
   it('Should call fail() because of invalid token', () => {
-    const {privateKey: anotherPrivateKey} = generateKeyPairSync('rsa', {modulusLength: 2048, publicKeyEncoding: {type: 'spki', format: 'pem'}});
+    const scope = nock('http://www.example.com')
+      .get('/realms/foo/protocol/openid-connect/certs')
+      .times(1)
+      .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
+
+    const {privateKey: anotherPrivateKey} = generateKeyPairSync('rsa', {modulusLength: 2048, publicKeyEncoding: {type: 'spki', format: 'jwk'}});
 
     const payload = {
+      kid: 'foo.keyid',
       id: 'foo.user',
       aud: 'foo.audience',
       iss: 'foo.issuer',
@@ -79,7 +95,7 @@ describe('strategies/bearer-token', () => {
     const token = jwt.sign(payload, anotherPrivateKey, signOpts);
 
     const strategy = new Strategy({
-      publicKey,
+      jwksUrl: 'http://www.example.com/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
       audience: 'foo.audience',
       issuer: 'foo.issuer'
@@ -89,7 +105,10 @@ describe('strategies/bearer-token', () => {
       chai.passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
-        .fail(resolve)
+        .fail(() => {
+          expect(scope.isDone()).to.eql(true);
+          resolve();
+        })
         .request(req => {
           req.headers.authorization = `Bearer ${token}`;
         })
@@ -98,7 +117,13 @@ describe('strategies/bearer-token', () => {
   });
 
   it('Should call fail() when token audience is not valid', () => {
+    const scope = nock('http://www.example.com')
+      .get('/realms/foo/protocol/openid-connect/certs')
+      .times(1)
+      .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
+
     const payload = {
+      kid: 'foo.keyid',
       id: 'foo.user',
       aud: 'foo.audience',
       iss: 'foo.issuer',
@@ -108,7 +133,7 @@ describe('strategies/bearer-token', () => {
     const token = jwt.sign(payload, privateKey, signOpts);
 
     const strategy = new Strategy({
-      publicKey,
+      jwksUrl: 'http://www.example.com/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
       audience: 'not.valid.audience',
       issuer: 'foo.issuer'
@@ -118,7 +143,10 @@ describe('strategies/bearer-token', () => {
       chai.passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
-        .fail(resolve)
+        .fail(() => {
+          expect(scope.isDone()).to.eql(true);
+          resolve();
+        })
         .request(req => {
           req.headers.authorization = `Bearer ${token}`;
         })
@@ -127,7 +155,13 @@ describe('strategies/bearer-token', () => {
   });
 
   it('Should call fail() when token issuer is not valid', () => {
+    const scope = nock('http://www.example.com')
+      .get('/realms/foo/protocol/openid-connect/certs')
+      .times(1)
+      .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
+
     const payload = {
+      kid: 'foo.keyid',
       id: 'foo.user',
       aud: 'foo.audience',
       iss: 'foo.issuer',
@@ -137,7 +171,7 @@ describe('strategies/bearer-token', () => {
     const token = jwt.sign(payload, privateKey, signOpts);
 
     const strategy = new Strategy({
-      publicKey,
+      jwksUrl: 'http://www.example.com/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
       audience: 'foo.audience',
       issuer: 'not.valid.issuer'
@@ -147,7 +181,10 @@ describe('strategies/bearer-token', () => {
       chai.passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
-        .fail(resolve)
+        .fail(() => {
+          expect(scope.isDone()).to.eql(true);
+          resolve();
+        })
         .request(req => {
           req.headers.authorization = `Bearer ${token}`;
         })
@@ -156,9 +193,13 @@ describe('strategies/bearer-token', () => {
   });
 
 
-  it('Should call fail() because of missing token', () => {
+  it('Should call fail() because of missing token. JWKS endpoint was not queried.', () => {
+    const scope = nock('http://www.example.com')
+      .get('/realms/foo/protocol/openid-connect/certs')
+      .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
+
     const strategy = new Strategy({
-      publicKey,
+      jwksUrl: 'http://www.example.com/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
       audience: 'foo.audience',
       issuer: 'foo.issuer'
@@ -168,13 +209,24 @@ describe('strategies/bearer-token', () => {
       chai.passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
-        .fail(resolve)
+        .fail(() => {
+          const interceptor = scope.interceptors.find(i => i.uri === '/realms/foo/protocol/openid-connect/certs');
+          expect(interceptor).to.haveOwnProperty('interceptionCounter');
+          expect(interceptor.interceptionCounter).to.eql(0);
+          resolve();
+        })
         .authenticate();
     });
   });
 
   it('Should call fail() because of expired token', () => {
+    const scope = nock('http://www.example.com')
+      .get('/realms/foo/protocol/openid-connect/certs')
+      .times(1)
+      .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
+
     const payload = {
+      kid: 'foo.keyid',
       id: 'foo.user',
       aud: 'foo.audience',
       iss: 'foo.issuer',
@@ -185,7 +237,7 @@ describe('strategies/bearer-token', () => {
     const token = jwt.sign(payload, privateKey, signOpts);
 
     const strategy = new Strategy({
-      publicKey,
+      jwksUrl: 'http://www.example.com/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
       audience: 'foo.audience',
       issuer: 'foo.issuer'
@@ -195,7 +247,10 @@ describe('strategies/bearer-token', () => {
       chai.passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
-        .fail(resolve)
+        .fail(() => {
+          expect(scope.isDone()).to.eql(true);
+          resolve();
+        })
         .request(req => {
           req.headers.authorization = `Bearer ${token}`;
         })

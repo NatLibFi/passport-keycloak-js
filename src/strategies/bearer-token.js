@@ -19,6 +19,7 @@ import crypto from 'crypto';
 
 import HttpStatus from 'http-status';
 import jwt from 'jsonwebtoken';
+import fetch from 'node-fetch';
 import Strategy from 'passport-strategy';
 
 import TokenValidationError from '../utils/tokenValidationError';
