@@ -14,7 +14,7 @@
     "url": "git@github.com:natlibfi/passport-keycloak-js.git"
   },
   "license": "MIT",
-  "version": "1.0.0",
+  "version": "2.0.0-alpha",
   "main": "./dist/index.js",
   "publishConfig": {
     "access": "public"
@@ -35,6 +35,7 @@
   },
   "dependencies": {
     "@babel/register": "^7.21.0",
+    "http-status": "^1.6.2",
     "jsonwebtoken": "^9.0.0",
     "passport-strategy": "^1.0.0"
   },
