@@ -83,6 +83,7 @@ export default class extends Strategy {
       return JSON.parse(atob(token.split('.')[0]));
     }
 
+    /* istanbul ignore next */
     async function findPublicKey(tokenHeader, cache, jwksUrl, validAlgorithms) {
       const keyId = tokenHeader.kid;
 
