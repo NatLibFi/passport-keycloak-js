@@ -34,7 +34,7 @@ describe('strategies/bearer-token', () => {
   afterEach(() => nock.cleanAll());
 
   it('Should call success() when token is valid', () => {
-    const scope = nock('http://www.example.com')
+    const scope = nock('http://foobar')
       .get('/realms/foo/protocol/openid-connect/certs')
       .times(1)
       .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
@@ -50,7 +50,7 @@ describe('strategies/bearer-token', () => {
     const token = jwt.sign(payload, privateKey, signOpts);
 
     const strategy = new Strategy({
-      jwksUrl: 'http://www.example.com/realms/foo/protocol/openid-connect/certs',
+      jwksUrl: 'http://foobar/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
       audience: 'foo.audience',
       issuer: 'foo.issuer'
@@ -77,7 +77,7 @@ describe('strategies/bearer-token', () => {
   });
 
   it('Should call fail() because of invalid token', () => {
-    const scope = nock('http://www.example.com')
+    const scope = nock('http://foobar')
       .get('/realms/foo/protocol/openid-connect/certs')
       .times(1)
       .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
@@ -95,7 +95,7 @@ describe('strategies/bearer-token', () => {
     const token = jwt.sign(payload, anotherPrivateKey, signOpts);
 
     const strategy = new Strategy({
-      jwksUrl: 'http://www.example.com/realms/foo/protocol/openid-connect/certs',
+      jwksUrl: 'http://foobar/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
       audience: 'foo.audience',
       issuer: 'foo.issuer'
@@ -117,7 +117,7 @@ describe('strategies/bearer-token', () => {
   });
 
   it('Should call fail() when token audience is not valid', () => {
-    const scope = nock('http://www.example.com')
+    const scope = nock('http://foobar')
       .get('/realms/foo/protocol/openid-connect/certs')
       .times(1)
       .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
@@ -133,7 +133,7 @@ describe('strategies/bearer-token', () => {
     const token = jwt.sign(payload, privateKey, signOpts);
 
     const strategy = new Strategy({
-      jwksUrl: 'http://www.example.com/realms/foo/protocol/openid-connect/certs',
+      jwksUrl: 'http://foobar/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
       audience: 'not.valid.audience',
       issuer: 'foo.issuer'
@@ -155,7 +155,7 @@ describe('strategies/bearer-token', () => {
   });
 
   it('Should call fail() when token issuer is not valid', () => {
-    const scope = nock('http://www.example.com')
+    const scope = nock('http://foobar')
       .get('/realms/foo/protocol/openid-connect/certs')
       .times(1)
       .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
@@ -171,7 +171,7 @@ describe('strategies/bearer-token', () => {
     const token = jwt.sign(payload, privateKey, signOpts);
 
     const strategy = new Strategy({
-      jwksUrl: 'http://www.example.com/realms/foo/protocol/openid-connect/certs',
+      jwksUrl: 'http://foobar/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
       audience: 'foo.audience',
       issuer: 'not.valid.issuer'
@@ -194,12 +194,12 @@ describe('strategies/bearer-token', () => {
 
 
   it('Should call fail() because of missing token. JWKS endpoint was not queried.', () => {
-    const scope = nock('http://www.example.com')
+    const scope = nock('http://foobar')
       .get('/realms/foo/protocol/openid-connect/certs')
       .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
 
     const strategy = new Strategy({
-      jwksUrl: 'http://www.example.com/realms/foo/protocol/openid-connect/certs',
+      jwksUrl: 'http://foobar/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
       audience: 'foo.audience',
       issuer: 'foo.issuer'
@@ -220,7 +220,7 @@ describe('strategies/bearer-token', () => {
   });
 
   it('Should call fail() because of expired token', () => {
-    const scope = nock('http://www.example.com')
+    const scope = nock('http://foobar')
       .get('/realms/foo/protocol/openid-connect/certs')
       .times(1)
       .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
@@ -237,7 +237,7 @@ describe('strategies/bearer-token', () => {
     const token = jwt.sign(payload, privateKey, signOpts);
 
     const strategy = new Strategy({
-      jwksUrl: 'http://www.example.com/realms/foo/protocol/openid-connect/certs',
+      jwksUrl: 'http://foobar/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
       audience: 'foo.audience',
       issuer: 'foo.issuer'
