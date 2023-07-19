@@ -3,7 +3,7 @@
 Passport strategy for Keycloak JWT. This module has the following features:
 - Written in modern day Javascript/ECMAscript
 - Supports HTTP Bearer authentication using Keycloak JWT as bearer tokens
-- Verifies token locally (i.e. does not use network calls to introspect endpoint)
+- Verifies token locally (i.e. does not use network calls to introspect endpoint, public keys are fetched from jwks endpoint and cached after first use)
 
 ## Strategies
 This module provides the following Passport strategies.
@@ -23,10 +23,10 @@ import {KeycloakStrategy} from '@natlibfi/passport-keycloak'
 ### Configuration
 Configuration of the strategy needs to be passed to the class constructor as object.
 
-- **publicKey (required):** Public key used for decoding jwt
 - **algorithms (required):** Algorithm for decoding jwt
 - **audience (required):** Audience of jwt
 - **issuer (required):** Issuer of jwt
+- **jwksUrl (required):** JWKS url to fetch public keys from
 
 
 ## License and copyright
