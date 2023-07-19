@@ -15,30 +15,46 @@
 *
 */
 
+import crypto from 'crypto';
+
+import HttpStatus from 'http-status';
 import jwt from 'jsonwebtoken';
+import fetch from 'node-fetch';
 import Strategy from 'passport-strategy';
 
 import TokenValidationError from '../utils/tokenValidationError';
 
+/* eslint-disable functional/no-this-expressions */
+
 export default class extends Strategy {
-  constructor({publicKey, algorithms, audience, issuer}) {
+  constructor({algorithms, audience, issuer, jwksUrl}) {
     super();
-    this.name = 'keycloak-jwt-bearer'; // eslint-disable-line functional/no-this-expressions
-    this.publicKey = publicKey; // eslint-disable-line functional/no-this-expressions
-    this.verifyOpts = {algorithms, audience, issuer, ignoreExpiration: false}; // eslint-disable-line functional/no-this-expressions
+    this.name = 'keycloak-jwt-bearer';
+    this.jwksUrl = jwksUrl;
+    this.verifyOpts = {algorithms, audience, issuer, ignoreExpiration: false};
+
+    this._publicKeyCache = {};
   }
 
-  authenticate(req) {
+  async authenticate(req) {
     try {
-      const token = getToken();
-      const userInfo = getUserInfo(token, this.publicKey, this.verifyOpts); // eslint-disable-line functional/no-this-expressions
-      this.success(userInfo); // eslint-disable-line functional/no-this-expressions
-    } catch (err) {
-      if (err instanceof TokenValidationError) { // eslint-disable-line functional/no-conditional-statements
-        return this.fail(); // eslint-disable-line functional/no-this-expressions
+      const token = getToken(req);
+      const tokenHeader = getTokenHeader(token);
+      const {publicKey, insertCache} = await findPublicKey(tokenHeader, this._publicKeyCache, this.jwksUrl, this.verifyOpts.algorithms);
+
+      if (insertCache) { // eslint-disable-line functional/no-conditional-statements
+        this._publicKeyCache[publicKey.kid] = JSON.parse(JSON.stringify(publicKey)); // eslint-disable-line functional/immutable-data
       }
 
-      return this.error(err); // eslint-disable-line functional/no-this-expressions
+      const publicKeyPem = jwkToPem(publicKey);
+      const userInfo = getUserInfo(token, publicKeyPem, this.verifyOpts);
+      this.success(userInfo);
+    } catch (err) {
+      if (err instanceof TokenValidationError) { // eslint-disable-line functional/no-conditional-statements
+        return this.fail();
+      }
+
+      return this.error(err);
     }
 
     function getUserInfo(token, publicKey, verifyOpts) {
@@ -46,7 +62,7 @@ export default class extends Strategy {
 
       jwt.verify(token, publicKey, verifyOpts, (err, decoded) => {
         if (err) {
-          throw new TokenValidationError();
+          throw new TokenValidationError(err);
         }
 
         userInfo = {...decoded};
@@ -55,12 +71,57 @@ export default class extends Strategy {
       return userInfo;
     }
 
-    function getToken() {
+    function getToken(req) {
       if (req.headers.authorization) {
         return req.headers.authorization.replace(/^Bearer /u, '');
       }
 
-      throw new TokenValidationError();
+      throw new TokenValidationError('Request headers did not contain authorization key');
+    }
+
+    function getTokenHeader(token) {
+      return JSON.parse(atob(token.split('.')[0]));
+    }
+
+    /* istanbul ignore next */
+    async function findPublicKey(tokenHeader, cache, jwksUrl, validAlgorithms) {
+      const keyId = tokenHeader.kid;
+
+      if (!keyId) {
+        throw new TokenValidationError('Token did not contain keyId information');
+      }
+
+      if (Object.keys(cache).includes(keyId)) {
+        return {publicKey: cache[keyId], insertCache: false};
+      }
+
+      const response = await fetch(jwksUrl, {
+        headers: {Accept: 'application/json'}
+      });
+
+      if (response.status !== HttpStatus.OK) {
+        throw new TokenValidationError('Could not fetch JWKS information');
+      }
+
+      const data = await response.json();
+      if (!data.keys || !Array.isArray(data.keys)) {
+        throw new TokenValidationError('JWKS response was malformed');
+      }
+
+      const result = data.keys.find(key => key.kid === keyId && validAlgorithms.includes(key.alg));
+      if (!result) {
+        throw new TokenValidationError('JWKS did not contain key appropriate for token');
+      }
+
+      return {publicKey: result, insertCache: true};
+    }
+
+    // Idea for using crypto KeyObject originally from stack overflow answer comment https://stackoverflow.com/a/75074566
+    // Comment by https://stackoverflow.com/users/9014097
+    // Example application to TypeScript by https://stackoverflow.com/users/2616445
+    function jwkToPem(jwk) {
+      const publicKey = crypto.createPublicKey({key: jwk, format: 'jwk'});
+      return publicKey.export({format: 'pem', type: 'spki'});
     }
   }
 }
