@@ -14,7 +14,7 @@
     "url": "git@github.com:natlibfi/passport-keycloak-js.git"
   },
   "license": "MIT",
-  "version": "2.0.1",
+  "version": "2.0.3-alpha.1",
   "main": "./dist/index.js",
   "publishConfig": {
     "access": "public"
@@ -34,26 +34,26 @@
     "watch": "cross-env NODE_ENV=test chokidar src -c 'npm test'"
   },
   "dependencies": {
-    "@babel/register": "^7.21.0",
-    "http-status": "^1.6.2",
-    "jsonwebtoken": "^9.0.0",
-    "node-fetch": "^2.6.12",
+    "@babel/register": "^7.22.15",
+    "http-status": "^1.7.0",
+    "jsonwebtoken": "^9.0.2",
+    "node-fetch": "^2.7.0",
     "passport-strategy": "^1.0.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.21.5",
-    "@babel/core": "^7.21.8",
-    "@babel/eslint-parser": "^7.21.8",
-    "@babel/preset-env": "^7.21.5",
-    "@natlibfi/eslint-config-melinda-backend": "^3.0.0",
+    "@babel/cli": "^7.22.15",
+    "@babel/core": "^7.22.15",
+    "@babel/eslint-parser": "^7.22.15",
+    "@babel/preset-env": "^7.22.15",
+    "@natlibfi/eslint-config-melinda-backend": "^3.0.1",
     "babel-plugin-istanbul": "^6.1.1",
-    "chai": "^4.3.7",
+    "chai": "^4.3.8",
     "chai-passport-strategy": "^3.0.0",
     "chokidar-cli": "^3.0.0",
     "cross-env": "^7.0.3",
-    "eslint": "^8.41.0",
+    "eslint": "^8.48.0",
     "mocha": "^10.2.0",
-    "nock": "^13.3.2",
+    "nock": "^13.3.3",
     "nyc": "^15.1.0"
   },
   "eslintConfig": {
