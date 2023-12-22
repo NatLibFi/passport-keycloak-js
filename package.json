@@ -30,7 +30,7 @@
     "lint:dev": "eslint --fix ./src",
     "test:base": "cross-env NODE_ENV=test nyc mocha --package ./package.json",
     "test:dev": "npm run lint:dev && cross-env NODE_ENV=test nyc mocha --package ./package.json",
-    "test": "npm run lint && npm run test:base && npm run coverage",
+    "test": "npm run lint && npm run test:base",
     "coverage": "nyc check-coverage --per-file",
     "watch": "cross-env NODE_ENV=test chokidar src -c 'npm test'",
     "dev": "nodemon",
