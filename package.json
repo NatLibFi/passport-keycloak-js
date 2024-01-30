@@ -14,7 +14,7 @@
     "url": "git@github.com:natlibfi/passport-keycloak-js.git"
   },
   "license": "MIT",
-  "version": "2.0.4-alpha.3",
+  "version": "2.0.5-alpha.2",
   "main": "./dist/index.js",
   "publishConfig": {
     "access": "public"
@@ -37,7 +37,7 @@
     "dev:debug": "cross-env LOG_LEVEL=debug DEBUG=@natlibfi/* NODE_ENV=test nodemon"
   },
   "dependencies": {
-    "@babel/register": "^7.22.15",
+    "@babel/register": "^7.23.7",
     "http-status": "^1.7.3",
     "jsonwebtoken": "^9.0.2",
     "node-fetch": "^2.7.0",
@@ -45,18 +45,18 @@
   },
   "devDependencies": {
     "@babel/cli": "^7.23.4",
-    "@babel/core": "^7.23.6",
-    "@babel/preset-env": "^7.23.6",
-    "@natlibfi/eslint-config-melinda-backend": "^3.0.3",
+    "@babel/core": "^7.23.7",
+    "@babel/preset-env": "^7.23.8",
+    "@natlibfi/eslint-config-melinda-backend": "^3.0.4",
     "babel-plugin-istanbul": "^6.1.1",
-    "chai": "^4.3.10",
+    "chai": "^4.4.1",
     "chai-passport-strategy": "^3.0.0",
     "chokidar-cli": "^3.0.0",
     "cross-env": "^7.0.3",
     "eslint": "^8.56.0",
     "mocha": "^10.2.0",
-    "nock": "^13.4.0",
-    "nodemon": "^3.0.2",
+    "nock": "^13.5.0",
+    "nodemon": "^3.0.3",
     "nyc": "^15.1.0"
   },
   "eslintConfig": {
