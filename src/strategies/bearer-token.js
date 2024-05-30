@@ -27,28 +27,48 @@ import TokenValidationError from '../utils/tokenValidationError';
 /* eslint-disable functional/no-this-expressions */
 
 export default class extends Strategy {
-  constructor({algorithms, audience, issuer, jwksUrl}) {
+  constructor({algorithms, audience, issuer, jwksUrl, serviceAuthHeader}) {
     super();
     this.name = 'keycloak-jwt-bearer';
     this.jwksUrl = jwksUrl;
     this.verifyOpts = {algorithms, audience, issuer, ignoreExpiration: false};
 
+    this.serviceAuthHeader = serviceAuthHeader ? serviceAuthHeader : false;
     this._publicKeyCache = {};
   }
 
+  // eslint-disable-next-line max-statements
   async authenticate(req) {
     try {
       const token = getToken(req);
+      const serviceToken = this.serviceAuthHeader ? getServiceToken(req, this.serviceAuthHeader) : null;
+
       const tokenHeader = getTokenHeader(token);
+      const serviceTokenHeader = serviceToken ? getTokenHeader(serviceToken) : null;
+
       const {publicKey, insertCache} = await findPublicKey(tokenHeader, this._publicKeyCache, this.jwksUrl, this.verifyOpts.algorithms);
 
       if (insertCache) { // eslint-disable-line functional/no-conditional-statements
         this._publicKeyCache[publicKey.kid] = JSON.parse(JSON.stringify(publicKey)); // eslint-disable-line functional/immutable-data
       }
 
+      // Placed here to avoid overhead of two JWKS endpoint calls if the signing key is shared between user and service tokens
+      const servicePublicKeyResult = serviceTokenHeader ? await findPublicKey(serviceTokenHeader, this._publicKeyCache, this.jwksUrl, this.verifyOpts.algorithms) : null;
+      if (serviceToken && servicePublicKeyResult.insertCache) { // eslint-disable-line functional/no-conditional-statements
+        this._publicKeyCache[servicePublicKeyResult.publicKey.kid] = JSON.parse(JSON.stringify(servicePublicKeyResult.publicKey)); // eslint-disable-line functional/immutable-data
+      }
+
       const publicKeyPem = jwkToPem(publicKey);
+      const servicePublicKeyPem = servicePublicKeyResult ? jwkToPem(servicePublicKeyResult.publicKey) : null;
+
       const userInfo = getUserInfo(token, publicKeyPem, this.verifyOpts);
-      this.success(userInfo);
+      const serviceInfo = serviceToken ? getUserInfo(serviceToken, servicePublicKeyPem, this.verifyOpts) : null;
+
+      if (serviceInfo) {
+        return this.success({service: serviceInfo, user: userInfo});
+      }
+
+      return this.success(userInfo);
     } catch (err) {
       if (err instanceof TokenValidationError) { // eslint-disable-line functional/no-conditional-statements
         return this.fail();
@@ -76,7 +96,15 @@ export default class extends Strategy {
         return req.headers.authorization.replace(/^Bearer /u, '');
       }
 
-      throw new TokenValidationError('Request headers did not contain authorization key');
+      throw new TokenValidationError('Request headers did not contain user authorization token');
+    }
+
+    function getServiceToken(req, serviceAuthHeader) {
+      if (req.headers[serviceAuthHeader]) {
+        return req.headers[serviceAuthHeader].replace(/^Bearer /u, '');
+      }
+
+      throw new TokenValidationError('Request headers did not contain service authorization token');
     }
 
     function getTokenHeader(token) {
