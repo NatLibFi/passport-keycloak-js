@@ -31,6 +31,6 @@ Configuration of the strategy needs to be passed to the class constructor as obj
 
 ## License and copyright
 
-Copyright (c) 2023 **University Of Helsinki (The National Library Of Finland)**
+Copyright (c) 2023-2024 **University Of Helsinki (The National Library Of Finland)**
 
 This project's source code is licensed under the terms of **MIT license**
