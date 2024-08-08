@@ -125,7 +125,7 @@ describe('strategies/bearer-token', () => {
     const payload = {
       kid: 'foo.keyid',
       id: 'foo.user',
-      aud: 'foo.audience',
+      aud: 'not.valid.audience',
       iss: 'foo.issuer',
       iat: Math.floor(Date.now() / 1000) + 60
     };
@@ -135,7 +135,7 @@ describe('strategies/bearer-token', () => {
     const strategy = new Strategy({
       jwksUrl: 'http://foobar/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
-      audience: 'not.valid.audience',
+      audience: 'foo.audience',
       issuer: 'foo.issuer'
     });
 
@@ -164,7 +164,7 @@ describe('strategies/bearer-token', () => {
       kid: 'foo.keyid',
       id: 'foo.user',
       aud: 'foo.audience',
-      iss: 'foo.issuer',
+      iss: 'not.valid.issuer',
       iat: Math.floor(Date.now() / 1000) + 60
     };
 
@@ -174,7 +174,7 @@ describe('strategies/bearer-token', () => {
       jwksUrl: 'http://foobar/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
       audience: 'foo.audience',
-      issuer: 'not.valid.issuer'
+      issuer: 'foo.issuer'
     });
 
     return new Promise((resolve, reject) => {
