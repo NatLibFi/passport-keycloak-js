@@ -32,7 +32,7 @@
     "test:dev": "npm run lint:dev && cross-env NODE_ENV=test nyc mocha --package ./package.json",
     "test": "npm run lint && npm run test:base",
     "coverage": "nyc check-coverage --per-file",
-    "watch": "cross-env NODE_ENV=test chokidar src -c 'npm test'",
+    "watch": "cross-env NODE_ENV=test chokidar src -c 'npm run test:base'",
     "dev": "nodemon",
     "dev:debug": "cross-env LOG_LEVEL=debug DEBUG=@natlibfi/* NODE_ENV=test nodemon"
   },
