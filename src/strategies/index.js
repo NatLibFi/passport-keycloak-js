@@ -16,3 +16,4 @@
 */
 
 export {default as KeycloakStrategy} from './bearer-token';
+export {default as KeycloakCookieStrategy} from './cookie';
