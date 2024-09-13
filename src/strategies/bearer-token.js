@@ -17,6 +17,7 @@
 
 import crypto from 'crypto';
 
+import createDebugLogger from 'debug';
 import HttpStatus from 'http-status';
 import jwt from 'jsonwebtoken';
 import fetch from 'node-fetch';
@@ -39,7 +40,10 @@ export default class extends Strategy {
 
   // eslint-disable-next-line max-statements
   async authenticate(req) {
+    const debug = createDebugLogger('@natlibfi/passport-keycloak-js/bearer-token:authenticate');
+
     try {
+
       const token = getToken(req);
       const serviceToken = this.serviceAuthHeader ? getServiceToken(req, this.serviceAuthHeader) : null;
 
@@ -70,6 +74,8 @@ export default class extends Strategy {
 
       return this.success(userInfo);
     } catch (err) {
+      debug(err);
+
       if (err instanceof TokenValidationError) { // eslint-disable-line functional/no-conditional-statements
         return this.fail();
       }
