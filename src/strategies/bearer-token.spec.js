@@ -32,7 +32,10 @@ const signOpts = {algorithm: 'RS256', header: {kid: 'foo.keyid'}};
 
 describe('strategies/bearer-token', () => {
   beforeEach(() => nock.disableNetConnect());
-  afterEach(() => nock.cleanAll());
+  afterEach(() => {
+    nock.cleanAll();
+    nock.enableNetConnect();
+  });
 
   it('Should call success() when token is valid', () => {
     const scope = nock('http://localhost')

@@ -43,7 +43,10 @@ function encrypt(val) {
 
 describe('strategies/cookie', () => {
   beforeEach(() => nock.disableNetConnect());
-  afterEach(() => nock.cleanAll());
+  afterEach(() => {
+    nock.cleanAll();
+    nock.enableNetConnect();
+  });
 
   it('Should call success() when token is valid', () => {
     const scope = nock('http://localhost')
