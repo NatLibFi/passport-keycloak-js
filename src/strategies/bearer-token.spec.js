@@ -259,6 +259,44 @@ describe('strategies/bearer-token', () => {
     });
   });
 
+  it('Should call fail() when alg is not valid', () => {
+    const scope = nock('http://localhost')
+      .get('/realms/foo/protocol/openid-connect/certs')
+      .times(1)
+      .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
+
+    const payload = {
+      kid: 'foo.keyid',
+      id: 'foo.user',
+      aud: 'foo.audience',
+      iss: 'foo.issuer',
+      iat: Math.floor(Date.now() / 1000) + 60
+    };
+
+    const token = jwt.sign(payload, privateKey, signOpts);
+
+    const strategy = new Strategy({
+      jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+      algorithms: ['RS512'],
+      audience: 'foo.audience',
+      issuer: 'foo.issuer'
+    });
+
+    return new Promise((resolve, reject) => {
+      chai.passport.use(strategy)
+        .success(() => reject(new Error('Should not call success()')))
+        .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
+        .fail(() => {
+          expect(scope.isDone()).to.eql(true);
+          resolve();
+        })
+        .request(req => {
+          req.headers.authorization = `Bearer ${token}`;
+        })
+        .authenticate();
+    });
+  });
+
   it('Service token option enabled: calls success when both tokens are valid()', () => {
     const scope = nock('http://localhost')
       .get('/realms/foo/protocol/openid-connect/certs')
