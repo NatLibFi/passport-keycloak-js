@@ -2,7 +2,7 @@
 *
 * @licstart  The following is the entire license notice for the JavaScript code in this file.
 *
-* Copyright 2023 University Of Helsinki (The National Library Of Finland)
+* Copyright 2024 University Of Helsinki (The National Library Of Finland)
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 *
@@ -26,15 +26,17 @@ import Strategy from 'passport-strategy';
 import TokenValidationError from '../utils/tokenValidationError';
 
 /* eslint-disable functional/no-this-expressions */
-
+// NB: requires req.cookies to be set
 export default class extends Strategy {
-  constructor({algorithms, audience, issuer, jwksUrl, serviceAuthHeader}) {
+  constructor({algorithms, audience, issuer, jwksUrl, cookieName, cookieEncryptSecretKey, cookieEncryptSecretIV}) {
     super();
-    this.name = 'keycloak-jwt-bearer';
+    this.name = 'keycloak-jwt-cookie';
+    this.cookieName = cookieName;
+    this.cookieEncryptSecretKey = cookieEncryptSecretKey;
+    this.cookieEncryptSecretIV = cookieEncryptSecretIV;
     this.jwksUrl = jwksUrl;
     this.verifyOpts = {algorithms, audience, issuer, ignoreExpiration: false};
 
-    this.serviceAuthHeader = serviceAuthHeader ? serviceAuthHeader : false;
     this._publicKeyCache = {};
   }
 
@@ -43,12 +45,13 @@ export default class extends Strategy {
     const debug = createDebugLogger('@natlibfi/passport-keycloak-js/bearer-token:authenticate');
 
     try {
+      const cookie = getCookie(req, this.cookieName);
+      if (cookie === null) {
+        throw new TokenValidationError('Request did not include authorization cookie');
+      }
 
-      const token = getToken(req);
-      const serviceToken = this.serviceAuthHeader ? getServiceToken(req, this.serviceAuthHeader) : null;
-
+      const token = decryptCookie(cookie, this.cookieEncryptSecretKey, this.cookieEncryptSecretIV);
       const tokenHeader = getTokenHeader(token);
-      const serviceTokenHeader = serviceToken ? getTokenHeader(serviceToken) : null;
 
       const {publicKey, insertCache} = await findPublicKey(tokenHeader, this._publicKeyCache, this.jwksUrl, this.verifyOpts.algorithms);
 
@@ -56,21 +59,8 @@ export default class extends Strategy {
         this._publicKeyCache[publicKey.kid] = JSON.parse(JSON.stringify(publicKey)); // eslint-disable-line functional/immutable-data
       }
 
-      // Placed here to avoid overhead of two JWKS endpoint calls if the signing key is shared between user and service tokens
-      const servicePublicKeyResult = serviceTokenHeader ? await findPublicKey(serviceTokenHeader, this._publicKeyCache, this.jwksUrl, this.verifyOpts.algorithms) : null;
-      if (serviceToken && servicePublicKeyResult.insertCache) { // eslint-disable-line functional/no-conditional-statements
-        this._publicKeyCache[servicePublicKeyResult.publicKey.kid] = JSON.parse(JSON.stringify(servicePublicKeyResult.publicKey)); // eslint-disable-line functional/immutable-data
-      }
-
       const publicKeyPem = jwkToPem(publicKey);
-      const servicePublicKeyPem = servicePublicKeyResult ? jwkToPem(servicePublicKeyResult.publicKey) : null;
-
       const userInfo = getUserInfo(token, publicKeyPem, this.verifyOpts);
-      const serviceInfo = serviceToken ? getUserInfo(serviceToken, servicePublicKeyPem, this.verifyOpts) : null;
-
-      if (serviceInfo) {
-        return this.success({service: serviceInfo, user: userInfo});
-      }
 
       return this.success(userInfo);
     } catch (err) {
@@ -81,6 +71,10 @@ export default class extends Strategy {
       }
 
       return this.error(err);
+    }
+
+    function getCookie(req, cookieName) {
+      return req.cookies?.[cookieName] ?? null;
     }
 
     function getUserInfo(token, publicKey, verifyOpts) {
@@ -95,22 +89,6 @@ export default class extends Strategy {
       });
 
       return userInfo;
-    }
-
-    function getToken(req) {
-      if (req.headers.authorization) {
-        return req.headers.authorization.replace(/^Bearer /u, '');
-      }
-
-      throw new TokenValidationError('Request headers did not contain user authorization token');
-    }
-
-    function getServiceToken(req, serviceAuthHeader) {
-      if (req.headers[serviceAuthHeader]) {
-        return req.headers[serviceAuthHeader].replace(/^Bearer /u, '');
-      }
-
-      throw new TokenValidationError('Request headers did not contain service authorization token');
     }
 
     function getTokenHeader(token) {
@@ -156,6 +134,12 @@ export default class extends Strategy {
     function jwkToPem(jwk) {
       const publicKey = crypto.createPublicKey({key: jwk, format: 'jwk'});
       return publicKey.export({format: 'pem', type: 'spki'});
+    }
+
+    function decryptCookie(encrypted, secretKey, secretIV) {
+      // eslint-disable-next-line no-invalid-this
+      const decipher = crypto.createDecipheriv('aes-256-cbc', secretKey, secretIV);
+      return decipher.update(encrypted, 'base64', 'utf8') + decipher.final('utf8');
     }
   }
 }
