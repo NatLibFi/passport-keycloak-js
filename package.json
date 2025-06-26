@@ -37,28 +37,28 @@
     "dev:debug": "cross-env LOG_LEVEL=debug DEBUG=@natlibfi/* NODE_ENV=test nodemon"
   },
   "dependencies": {
-    "@babel/register": "^7.24.6",
+    "@babel/register": "^7.27.1",
     "debug": "^4.4.1",
-    "http-status": "^1.7.4",
+    "http-status": "^1.8.1",
     "jsonwebtoken": "^9.0.2",
     "node-fetch": "^2.7.0",
     "passport-strategy": "^1.0.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.24.7",
-    "@babel/core": "^7.24.7",
-    "@babel/preset-env": "^7.24.7",
-    "@natlibfi/eslint-config-melinda-backend": "^3.0.5",
+    "@babel/cli": "^7.27.2",
+    "@babel/core": "^7.27.4",
+    "@babel/preset-env": "^7.27.2",
+    "@natlibfi/eslint-config-melinda-backend": "^3.0.6",
     "babel-plugin-istanbul": "^6.1.1",
-    "chai": "^4.4.1",
+    "chai": "^4.5.0",
     "chai-passport-strategy": "^3.0.0",
     "chokidar-cli": "^3.0.0",
     "cross-env": "^7.0.3",
-    "eslint": "^8.57.0",
-    "mocha": "^10.6.0",
-    "nock": "^13.5.4",
-    "nodemon": "^3.1.4",
-    "nyc": "^15.1.0"
+    "eslint": "^8.57.1",
+    "mocha": "^11.7.1",
+    "nock": "^13.5.6",
+    "nodemon": "^3.1.10",
+    "nyc": "^17.1.0"
   },
   "eslintConfig": {
     "extends": "@natlibfi/melinda-backend"
