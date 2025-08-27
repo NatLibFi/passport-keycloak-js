@@ -15,15 +15,17 @@
 *
 */
 
-/* eslint-disable functional/immutable-data, max-lines */
+/* eslint-disable max-lines */
 
-import chai, {expect} from 'chai';
+import chai from 'chai';
 import chaiPassportStrategy from 'chai-passport-strategy';
+import assert from 'node:assert';
+import {describe, it, afterEach, beforeEach} from 'node:test';
 import {generateKeyPairSync} from 'crypto';
 import nock from 'nock';
 import jwt from 'jsonwebtoken';
 
-import Strategy from './bearer-token';
+import Strategy from './bearer-token.js';
 
 chai.use(chaiPassportStrategy);
 
@@ -66,8 +68,8 @@ describe('strategies/bearer-token', () => {
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .success(user => {
           try {
-            expect(user).to.eql(payload);
-            expect(scope.isDone()).to.eql(true);
+            assert.deepStrictEqual(user, payload);
+            assert.equal(scope.isDone(), true);
             resolve();
           } catch (err) {
             reject(err);
@@ -110,7 +112,7 @@ describe('strategies/bearer-token', () => {
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
-          expect(scope.isDone()).to.eql(true);
+          assert.equal(scope.isDone(), true);
           resolve();
         })
         .request(req => {
@@ -148,7 +150,7 @@ describe('strategies/bearer-token', () => {
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
-          expect(scope.isDone()).to.eql(true);
+          assert.equal(scope.isDone(), true);
           resolve();
         })
         .request(req => {
@@ -186,7 +188,7 @@ describe('strategies/bearer-token', () => {
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
-          expect(scope.isDone()).to.eql(true);
+          assert.equal(scope.isDone(), true);
           resolve();
         })
         .request(req => {
@@ -215,8 +217,8 @@ describe('strategies/bearer-token', () => {
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
           const interceptor = scope.interceptors.find(i => i.uri === '/realms/foo/protocol/openid-connect/certs');
-          expect(interceptor).to.haveOwnProperty('interceptionCounter');
-          expect(interceptor.interceptionCounter).to.eql(0);
+          assert.equal(interceptor.interceptionCounter !== undefined, true);
+          assert.equal(interceptor.interceptionCounter, 0);
           resolve();
         })
         .authenticate();
@@ -252,7 +254,7 @@ describe('strategies/bearer-token', () => {
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
-          expect(scope.isDone()).to.eql(true);
+          assert.equal(scope.isDone(), true);
           resolve();
         })
         .request(req => {
@@ -290,7 +292,7 @@ describe('strategies/bearer-token', () => {
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
-          expect(scope.isDone()).to.eql(true);
+          assert.equal(scope.isDone(), true);
           resolve();
         })
         .request(req => {
@@ -339,9 +341,9 @@ describe('strategies/bearer-token', () => {
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .success(user => {
           try {
-            expect(user.user).to.eql(userPayload);
-            expect(user.service).to.eql(servicePayload);
-            expect(scope.isDone()).to.eql(true);
+            assert.deepStrictEqual(user.user, userPayload);
+            assert.deepStrictEqual(user.service, servicePayload);
+            assert.equal(scope.isDone(), true);
             resolve();
           } catch (err) {
             reject(err);
@@ -395,7 +397,7 @@ describe('strategies/bearer-token', () => {
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
-          expect(scope.isDone()).to.eql(true);
+          assert.equal(scope.isDone(), true);
           resolve();
         })
         .request(req => {
@@ -446,7 +448,7 @@ describe('strategies/bearer-token', () => {
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
-          expect(scope.isDone()).to.eql(true);
+          assert.equal(scope.isDone(), true);
           resolve();
         })
         .request(req => {
@@ -495,7 +497,7 @@ describe('strategies/bearer-token', () => {
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
-          expect(scope.isDone()).to.eql(true);
+          assert.equal(scope.isDone(), true);
           resolve();
         })
         .request(req => {
@@ -544,7 +546,7 @@ describe('strategies/bearer-token', () => {
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
-          expect(scope.isDone()).to.eql(true);
+          assert.equal(scope.isDone(), true);
           resolve();
         })
         .request(req => {
@@ -593,7 +595,7 @@ describe('strategies/bearer-token', () => {
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
-          expect(scope.isDone()).to.eql(true);
+          assert.equal(scope.isDone(), true);
           resolve();
         })
         .request(req => {
@@ -642,7 +644,7 @@ describe('strategies/bearer-token', () => {
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
-          expect(scope.isDone()).to.eql(true);
+          assert.equal(scope.isDone(), true);
           resolve();
         })
         .request(req => {
@@ -682,8 +684,8 @@ describe('strategies/bearer-token', () => {
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
           const interceptor = scope.interceptors.find(i => i.uri === '/realms/foo/protocol/openid-connect/certs');
-          expect(interceptor).to.haveOwnProperty('interceptionCounter');
-          expect(interceptor.interceptionCounter).to.eql(0);
+          assert.equal(interceptor.interceptionCounter !== undefined, true);
+          assert.equal(interceptor.interceptionCounter, 0);
           resolve();
         })
         .request(req => {
@@ -722,8 +724,8 @@ describe('strategies/bearer-token', () => {
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
           const interceptor = scope.interceptors.find(i => i.uri === '/realms/foo/protocol/openid-connect/certs');
-          expect(interceptor).to.haveOwnProperty('interceptionCounter');
-          expect(interceptor.interceptionCounter).to.eql(0);
+          assert.equal(interceptor.interceptionCounter !== undefined, true);
+          assert.equal(interceptor.interceptionCounter, 0);
           resolve();
         })
         .request(req => {
@@ -772,7 +774,7 @@ describe('strategies/bearer-token', () => {
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
-          expect(scope.isDone()).to.eql(true);
+          assert.equal(scope.isDone(), true);
           resolve();
         })
         .request(req => {
@@ -822,7 +824,7 @@ describe('strategies/bearer-token', () => {
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
-          expect(scope.isDone()).to.eql(true);
+          assert.equal(scope.isDone(), true);
           resolve();
         })
         .request(req => {

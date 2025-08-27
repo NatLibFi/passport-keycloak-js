@@ -20,12 +20,10 @@ import crypto from 'crypto';
 import createDebugLogger from 'debug';
 import HttpStatus from 'http-status';
 import jwt from 'jsonwebtoken';
-import fetch from 'node-fetch';
 import Strategy from 'passport-strategy';
 
-import TokenValidationError from '../utils/tokenValidationError';
+import TokenValidationError from '../utils/tokenValidationError.js';
 
-/* eslint-disable functional/no-this-expressions */
 // NB: requires req.cookies to be set
 export default class extends Strategy {
   constructor({algorithms, audience, issuer, jwksUrl, cookieName, cookieEncryptSecretKey, cookieEncryptSecretIV}) {
@@ -55,8 +53,8 @@ export default class extends Strategy {
 
       const {publicKey, insertCache} = await findPublicKey(tokenHeader, this._publicKeyCache, this.jwksUrl, this.verifyOpts.algorithms);
 
-      if (insertCache) { // eslint-disable-line functional/no-conditional-statements
-        this._publicKeyCache[publicKey.kid] = JSON.parse(JSON.stringify(publicKey)); // eslint-disable-line functional/immutable-data
+      if (insertCache) {
+        this._publicKeyCache[publicKey.kid] = JSON.parse(JSON.stringify(publicKey));
       }
 
       const publicKeyPem = jwkToPem(publicKey);
@@ -66,7 +64,7 @@ export default class extends Strategy {
     } catch (err) {
       debug(err);
 
-      if (err instanceof TokenValidationError) { // eslint-disable-line functional/no-conditional-statements
+      if (err instanceof TokenValidationError) {
         return this.fail();
       }
 
@@ -78,7 +76,7 @@ export default class extends Strategy {
     }
 
     function getUserInfo(token, publicKey, verifyOpts) {
-      let userInfo; // eslint-disable-line functional/no-let
+      let userInfo;
 
       jwt.verify(token, publicKey, verifyOpts, (err, decoded) => {
         if (err) {

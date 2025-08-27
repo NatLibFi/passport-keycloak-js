@@ -20,12 +20,9 @@ import crypto from 'crypto';
 import createDebugLogger from 'debug';
 import HttpStatus from 'http-status';
 import jwt from 'jsonwebtoken';
-import fetch from 'node-fetch';
 import Strategy from 'passport-strategy';
 
-import TokenValidationError from '../utils/tokenValidationError';
-
-/* eslint-disable functional/no-this-expressions */
+import TokenValidationError from '../utils/tokenValidationError.js';
 
 export default class extends Strategy {
   constructor({algorithms, audience, issuer, jwksUrl, serviceAuthHeader}) {
@@ -52,14 +49,14 @@ export default class extends Strategy {
 
       const {publicKey, insertCache} = await findPublicKey(tokenHeader, this._publicKeyCache, this.jwksUrl, this.verifyOpts.algorithms);
 
-      if (insertCache) { // eslint-disable-line functional/no-conditional-statements
-        this._publicKeyCache[publicKey.kid] = JSON.parse(JSON.stringify(publicKey)); // eslint-disable-line functional/immutable-data
+      if (insertCache) {
+        this._publicKeyCache[publicKey.kid] = JSON.parse(JSON.stringify(publicKey));
       }
 
       // Placed here to avoid overhead of two JWKS endpoint calls if the signing key is shared between user and service tokens
       const servicePublicKeyResult = serviceTokenHeader ? await findPublicKey(serviceTokenHeader, this._publicKeyCache, this.jwksUrl, this.verifyOpts.algorithms) : null;
-      if (serviceToken && servicePublicKeyResult.insertCache) { // eslint-disable-line functional/no-conditional-statements
-        this._publicKeyCache[servicePublicKeyResult.publicKey.kid] = JSON.parse(JSON.stringify(servicePublicKeyResult.publicKey)); // eslint-disable-line functional/immutable-data
+      if (serviceToken && servicePublicKeyResult.insertCache) {
+        this._publicKeyCache[servicePublicKeyResult.publicKey.kid] = JSON.parse(JSON.stringify(servicePublicKeyResult.publicKey));
       }
 
       const publicKeyPem = jwkToPem(publicKey);
@@ -76,7 +73,7 @@ export default class extends Strategy {
     } catch (err) {
       debug(err);
 
-      if (err instanceof TokenValidationError) { // eslint-disable-line functional/no-conditional-statements
+      if (err instanceof TokenValidationError) {
         return this.fail();
       }
 
@@ -84,7 +81,7 @@ export default class extends Strategy {
     }
 
     function getUserInfo(token, publicKey, verifyOpts) {
-      let userInfo; // eslint-disable-line functional/no-let
+      let userInfo;
 
       jwt.verify(token, publicKey, verifyOpts, (err, decoded) => {
         if (err) {
