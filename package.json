@@ -25,7 +25,7 @@
   },
   "scripts": {
     "prepublishOnly": "npm run build",
-    "build": "esbuild src/**/*.js --sourcemap --platform=node --main-fields=main --outdir=dist --allow-overwrite --analyze",
+    "build": "esbuild src/*.js src/**/*.js --sourcemap --platform=node --main-fields=main --outdir=dist --allow-overwrite --analyze",
     "lint": "eslint ./src",
     "lint:dev": "eslint --fix ./src",
     "test:base": "node --test --experimental-test-coverage --test-reporter=spec './src/*.test.js' './src/**/*.test.js'",
