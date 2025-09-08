@@ -15,15 +15,17 @@
 *
 */
 
-/* eslint-disable functional/immutable-data, max-lines */
+/* eslint-disable max-lines */
 
-import chai, {expect} from 'chai';
+import chai from 'chai';
+import assert from 'node:assert';
+import {describe, it, afterEach, beforeEach} from 'node:test';
 import chaiPassportStrategy from 'chai-passport-strategy';
 import crypto from 'crypto';
 import nock from 'nock';
 import jwt from 'jsonwebtoken';
 
-import Strategy from './cookie';
+import Strategy from './cookie.js';
 
 chai.use(chaiPassportStrategy);
 
@@ -81,8 +83,8 @@ describe('strategies/cookie', () => {
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .success(user => {
           try {
-            expect(user).to.eql(payload);
-            expect(scope.isDone()).to.eql(true);
+            assert.deepStrictEqual(user, payload);
+            assert.equal(scope.isDone(), true);
             resolve();
           } catch (err) {
             reject(err);
@@ -129,7 +131,7 @@ describe('strategies/cookie', () => {
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
-          expect(scope.isDone()).to.eql(true);
+          assert.equal(scope.isDone(), true);
           resolve();
         })
         .request(req => {
@@ -171,7 +173,7 @@ describe('strategies/cookie', () => {
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
-          expect(scope.isDone()).to.eql(true);
+          assert.equal(scope.isDone(), true);
           resolve();
         })
         .request(req => {
@@ -213,7 +215,7 @@ describe('strategies/cookie', () => {
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
-          expect(scope.isDone()).to.eql(true);
+          assert.equal(scope.isDone(), true);
           resolve();
         })
         .request(req => {
@@ -241,8 +243,8 @@ describe('strategies/cookie', () => {
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
           const interceptor = scope.interceptors.find(i => i.uri === '/realms/foo/protocol/openid-connect/certs');
-          expect(interceptor).to.haveOwnProperty('interceptionCounter');
-          expect(interceptor.interceptionCounter).to.eql(0);
+          assert.equal(interceptor.interceptionCounter !== undefined, true);
+          assert.equal(interceptor.interceptionCounter, 0);
           resolve();
         })
         .authenticate();
@@ -282,7 +284,7 @@ describe('strategies/cookie', () => {
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
-          expect(scope.isDone()).to.eql(true);
+          assert.equal(scope.isDone(), true);
           resolve();
         })
         .request(req => {
@@ -324,7 +326,7 @@ describe('strategies/cookie', () => {
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
-          expect(scope.isDone()).to.eql(true);
+          assert.equal(scope.isDone(), true);
           resolve();
         })
         .request(req => {

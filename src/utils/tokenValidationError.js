@@ -18,6 +18,6 @@
 export default class TokenValidationError extends Error {
   constructor(msg) {
     super(msg);
-    this.name = 'TokenValidationError'; // eslint-disable-line functional/no-this-expressions
+    this.name = 'TokenValidationError';
   }
 }
