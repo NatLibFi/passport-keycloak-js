@@ -33,6 +33,26 @@ export default class extends Strategy {
 
     this.serviceAuthHeader = serviceAuthHeader ? serviceAuthHeader : false;
     this._publicKeyCache = {};
+
+    const allowedAlgorithms = [
+      'ES256',
+      'ES384',
+      'ES512',
+      'EdDSA',
+      'RS256',
+      'RS384',
+      'RS512'
+    ]
+
+    const algorithmsMissing = algorithms.length === 0;
+    if (algorithmsMissing) {
+      throw new Error('Algorithm definitions are missing. Define at least one approved algorithm.')
+    }
+
+    const invalidAlgorithm = algorithms.find(algorithm => !allowedAlgorithms.includes(algorithm));
+    if (invalidAlgorithm) {
+      throw new Error(`Algorithm ${invalidAlgorithm} is not an allowed algorithm`)
+    }
   }
 
   // eslint-disable-next-line max-statements

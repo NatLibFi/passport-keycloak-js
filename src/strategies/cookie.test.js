@@ -335,4 +335,40 @@ describe('strategies/cookie', () => {
         .authenticate();
     });
   });
+
+  it('Should disallow use of algorithm that is not in allowed algorithms list (one algorithm)', () => {
+    assert.throws(() => {
+      new Strategy({
+        jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+        algorithms: ['HS256'],
+        audience: 'foo.audience',
+        issuer: 'foo.issuer',
+        serviceAuthHeader: 'customHeader'
+      });
+    }, new Error('Algorithm HS256 is not an allowed algorithm'))
+  })
+
+  it('Should disallow use of algorithm that is not in allowed algorithms list (multiple algorithms, one disallowed)', () => {
+    assert.throws(() => {
+      new Strategy({
+        jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+        algorithms: ['RS256', 'HS256'],
+        audience: 'foo.audience',
+        issuer: 'foo.issuer',
+        serviceAuthHeader: 'customHeader'
+      });
+    }, new Error('Algorithm HS256 is not an allowed algorithm'))
+  })
+
+  it('Should disallow use of empty algorithm array', () => {
+    assert.throws(() => {
+      new Strategy({
+        jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+        algorithms: [],
+        audience: 'foo.audience',
+        issuer: 'foo.issuer',
+        serviceAuthHeader: 'customHeader'
+      });
+    }, new Error('Algorithm definitions are missing. Define at least one approved algorithm.'))
+  })
 });
