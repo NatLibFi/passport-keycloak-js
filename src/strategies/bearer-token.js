@@ -53,7 +53,6 @@ export default class extends Strategy {
     if (invalidAlgorithm) {
       throw new Error(`Algorithm ${invalidAlgorithm} is not an allowed algorithm`)
     }
-
   }
 
   // eslint-disable-next-line max-statements
