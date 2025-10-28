@@ -28,6 +28,12 @@ import TokenValidationError from '../utils/tokenValidationError.js';
 export default class extends Strategy {
   constructor({algorithms, audience, issuer, jwksUrl, cookieName, cookieEncryptSecretKey, cookieEncryptSecretIV}) {
     super();
+
+    const jwksUsesHttps = jwksUrl.startsWith('https://');
+    if (!jwksUsesHttps) {
+      throw new Error('JWKS URL must use HTTPS');
+    }
+
     this.name = 'keycloak-jwt-cookie';
     this.cookieName = cookieName;
     this.cookieEncryptSecretKey = cookieEncryptSecretKey;
@@ -58,7 +64,6 @@ export default class extends Strategy {
     }
   }
 
-  // eslint-disable-next-line max-statements
   async authenticate(req) {
     const debug = createDebugLogger('@natlibfi/passport-keycloak-js/bearer-token:authenticate');
 
@@ -155,7 +160,6 @@ export default class extends Strategy {
     }
 
     function decryptCookie(encrypted, secretKey, secretIV) {
-      // eslint-disable-next-line no-invalid-this
       const decipher = crypto.createDecipheriv('aes-256-cbc', secretKey, secretIV);
       return decipher.update(encrypted, 'base64', 'utf8') + decipher.final('utf8');
     }
