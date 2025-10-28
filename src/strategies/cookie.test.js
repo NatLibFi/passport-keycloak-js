@@ -15,8 +15,6 @@
 *
 */
 
-/* eslint-disable max-lines */
-
 import chai from 'chai';
 import assert from 'node:assert';
 import {describe, it, afterEach, beforeEach} from 'node:test';
@@ -37,7 +35,6 @@ const cookieName = 'foo';
 const cookieEncryptSecretKey = crypto.randomBytes(16).toString('hex');
 const cookieEncryptSecretIV = crypto.randomBytes(8).toString('hex');
 
-// eslint-disable-next-line no-unused-vars
 function encrypt(val) {
   const cipher = crypto.createCipheriv('aes-256-cbc', cookieEncryptSecretKey, cookieEncryptSecretIV);
   return cipher.update(val, 'utf8', 'base64') + cipher.final('base64');
@@ -51,7 +48,7 @@ describe('strategies/cookie', () => {
   });
 
   it('Should call success() when token is valid', () => {
-    const scope = nock('http://localhost')
+    const scope = nock('https://localhost')
       .get('/realms/foo/protocol/openid-connect/certs')
       .times(1)
       .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
@@ -68,7 +65,7 @@ describe('strategies/cookie', () => {
     const encryptedToken = encrypt(token);
 
     const strategy = new Strategy({
-      jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+      jwksUrl: 'https://localhost/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
       audience: 'foo.audience',
       issuer: 'foo.issuer',
@@ -98,7 +95,7 @@ describe('strategies/cookie', () => {
   });
 
   it('Should call fail() because of invalid token', () => {
-    const scope = nock('http://localhost')
+    const scope = nock('https://localhost')
       .get('/realms/foo/protocol/openid-connect/certs')
       .times(1)
       .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
@@ -117,7 +114,7 @@ describe('strategies/cookie', () => {
     const encryptedToken = encrypt(token);
 
     const strategy = new Strategy({
-      jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+      jwksUrl: 'https://localhost/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
       audience: 'foo.audience',
       issuer: 'foo.issuer',
@@ -142,7 +139,7 @@ describe('strategies/cookie', () => {
   });
 
   it('Should call fail() when token audience is not valid', () => {
-    const scope = nock('http://localhost')
+    const scope = nock('https://localhost')
       .get('/realms/foo/protocol/openid-connect/certs')
       .times(1)
       .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
@@ -159,7 +156,7 @@ describe('strategies/cookie', () => {
     const encryptedToken = encrypt(token);
 
     const strategy = new Strategy({
-      jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+      jwksUrl: 'https://localhost/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
       audience: 'foo.audience',
       issuer: 'foo.issuer',
@@ -184,7 +181,7 @@ describe('strategies/cookie', () => {
   });
 
   it('Should call fail() when token issuer is not valid', () => {
-    const scope = nock('http://localhost')
+    const scope = nock('https://localhost')
       .get('/realms/foo/protocol/openid-connect/certs')
       .times(1)
       .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
@@ -201,7 +198,7 @@ describe('strategies/cookie', () => {
     const encryptedToken = encrypt(token);
 
     const strategy = new Strategy({
-      jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+      jwksUrl: 'https://localhost/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
       audience: 'foo.audience',
       issuer: 'foo.issuer',
@@ -226,12 +223,12 @@ describe('strategies/cookie', () => {
   });
 
   it('Should call fail() because of missing token. JWKS endpoint was not queried.', () => {
-    const scope = nock('http://localhost')
+    const scope = nock('https://localhost')
       .get('/realms/foo/protocol/openid-connect/certs')
       .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
 
     const strategy = new Strategy({
-      jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+      jwksUrl: 'https://localhost/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
       audience: 'foo.audience',
       issuer: 'foo.issuer'
@@ -252,7 +249,7 @@ describe('strategies/cookie', () => {
   });
 
   it('Should call fail() because of expired token', () => {
-    const scope = nock('http://localhost')
+    const scope = nock('https://localhost')
       .get('/realms/foo/protocol/openid-connect/certs')
       .times(1)
       .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
@@ -270,7 +267,7 @@ describe('strategies/cookie', () => {
     const encryptedToken = encrypt(token);
 
     const strategy = new Strategy({
-      jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+      jwksUrl: 'https://localhost/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
       audience: 'foo.audience',
       issuer: 'foo.issuer',
@@ -295,7 +292,7 @@ describe('strategies/cookie', () => {
   });
 
   it('Should call fail() when alg does not match', () => {
-    const scope = nock('http://localhost')
+    const scope = nock('https://localhost')
       .get('/realms/foo/protocol/openid-connect/certs')
       .times(1)
       .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
@@ -312,7 +309,7 @@ describe('strategies/cookie', () => {
     const encryptedToken = encrypt(token);
 
     const strategy = new Strategy({
-      jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+      jwksUrl: 'https://localhost/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS512'],
       audience: 'foo.audience',
       issuer: 'foo.issuer',
@@ -339,7 +336,7 @@ describe('strategies/cookie', () => {
   it('Should disallow use of algorithm that is not in allowed algorithms list (one algorithm)', () => {
     assert.throws(() => {
       new Strategy({
-        jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+        jwksUrl: 'https://localhost/realms/foo/protocol/openid-connect/certs',
         algorithms: ['HS256'],
         audience: 'foo.audience',
         issuer: 'foo.issuer',
@@ -351,7 +348,7 @@ describe('strategies/cookie', () => {
   it('Should disallow use of algorithm that is not in allowed algorithms list (multiple algorithms, one disallowed)', () => {
     assert.throws(() => {
       new Strategy({
-        jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+        jwksUrl: 'https://localhost/realms/foo/protocol/openid-connect/certs',
         algorithms: ['RS256', 'HS256'],
         audience: 'foo.audience',
         issuer: 'foo.issuer',
@@ -363,12 +360,24 @@ describe('strategies/cookie', () => {
   it('Should disallow use of empty algorithm array', () => {
     assert.throws(() => {
       new Strategy({
-        jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+        jwksUrl: 'https://localhost/realms/foo/protocol/openid-connect/certs',
         algorithms: [],
         audience: 'foo.audience',
         issuer: 'foo.issuer',
         serviceAuthHeader: 'customHeader'
       });
     }, new Error('Algorithm definitions are missing. Define at least one approved algorithm.'))
+  })
+
+  it('Should disallow use of JWKS url that does not use HTTPS', () => {
+    assert.throws(() => {
+      new Strategy({
+        jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+        algorithms: ['RS256'],
+        audience: 'foo.audience',
+        issuer: 'foo.issuer',
+        serviceAuthHeader: 'customHeader'
+      });
+    }, new Error('JWKS URL must use HTTPS'))
   })
 });

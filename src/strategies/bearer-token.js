@@ -27,6 +27,12 @@ import TokenValidationError from '../utils/tokenValidationError.js';
 export default class extends Strategy {
   constructor({algorithms, audience, issuer, jwksUrl, serviceAuthHeader}) {
     super();
+
+    const jwksUsesHttps = jwksUrl.startsWith('https://');
+    if (!jwksUsesHttps) {
+      throw new Error('JWKS URL must use HTTPS');
+    }
+
     this.name = 'keycloak-jwt-bearer';
     this.jwksUrl = jwksUrl;
     this.verifyOpts = {algorithms, audience, issuer, ignoreExpiration: false};
@@ -55,7 +61,6 @@ export default class extends Strategy {
     }
   }
 
-  // eslint-disable-next-line max-statements
   async authenticate(req) {
     const debug = createDebugLogger('@natlibfi/passport-keycloak-js/bearer-token:authenticate');
 
