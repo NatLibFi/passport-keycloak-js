@@ -15,7 +15,7 @@
 *
 */
 
-import chai from 'chai';
+import {use} from 'chai';
 import chaiPassportStrategy from 'chai-passport-strategy';
 import assert from 'node:assert';
 import {describe, it, afterEach, beforeEach} from 'node:test';
@@ -25,7 +25,7 @@ import jwt from 'jsonwebtoken';
 
 import Strategy from './bearer-token.js';
 
-chai.use(chaiPassportStrategy);
+const {passport} = use(chaiPassportStrategy);
 
 const {privateKey, publicKey} = generateKeyPairSync('rsa', {modulusLength: 2048, publicKeyEncoding: {type: 'spki', format: 'jwk'}});
 const signOpts = {algorithm: 'RS256', header: {kid: 'foo.keyid'}};
@@ -61,7 +61,7 @@ describe('strategies/bearer-token', () => {
     });
 
     return new Promise((resolve, reject) => {
-      chai.passport.use(strategy)
+      passport.use(strategy)
         .fail(() => reject(new Error('Should not call fail()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .success(user => {
@@ -106,7 +106,7 @@ describe('strategies/bearer-token', () => {
     });
 
     return new Promise((resolve, reject) => {
-      chai.passport.use(strategy)
+      passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
@@ -144,7 +144,7 @@ describe('strategies/bearer-token', () => {
     });
 
     return new Promise((resolve, reject) => {
-      chai.passport.use(strategy)
+      passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
@@ -182,7 +182,7 @@ describe('strategies/bearer-token', () => {
     });
 
     return new Promise((resolve, reject) => {
-      chai.passport.use(strategy)
+      passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
@@ -210,7 +210,7 @@ describe('strategies/bearer-token', () => {
     });
 
     return new Promise((resolve, reject) => {
-      chai.passport.use(strategy)
+      passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
@@ -248,7 +248,7 @@ describe('strategies/bearer-token', () => {
     });
 
     return new Promise((resolve, reject) => {
-      chai.passport.use(strategy)
+      passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
@@ -286,7 +286,7 @@ describe('strategies/bearer-token', () => {
     });
 
     return new Promise((resolve, reject) => {
-      chai.passport.use(strategy)
+      passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
@@ -334,7 +334,7 @@ describe('strategies/bearer-token', () => {
     });
 
     return new Promise((resolve, reject) => {
-      chai.passport.use(strategy)
+      passport.use(strategy)
         .fail(() => reject(new Error('Should not call fail()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .success(user => {
@@ -391,7 +391,7 @@ describe('strategies/bearer-token', () => {
     });
 
     return new Promise((resolve, reject) => {
-      chai.passport.use(strategy)
+      passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
@@ -442,7 +442,7 @@ describe('strategies/bearer-token', () => {
     });
 
     return new Promise((resolve, reject) => {
-      chai.passport.use(strategy)
+      passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
@@ -491,7 +491,7 @@ describe('strategies/bearer-token', () => {
     });
 
     return new Promise((resolve, reject) => {
-      chai.passport.use(strategy)
+      passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
@@ -540,7 +540,7 @@ describe('strategies/bearer-token', () => {
     });
 
     return new Promise((resolve, reject) => {
-      chai.passport.use(strategy)
+      passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
@@ -589,7 +589,7 @@ describe('strategies/bearer-token', () => {
     });
 
     return new Promise((resolve, reject) => {
-      chai.passport.use(strategy)
+      passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
@@ -638,7 +638,7 @@ describe('strategies/bearer-token', () => {
     });
 
     return new Promise((resolve, reject) => {
-      chai.passport.use(strategy)
+      passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
@@ -677,7 +677,7 @@ describe('strategies/bearer-token', () => {
     });
 
     return new Promise((resolve, reject) => {
-      chai.passport.use(strategy)
+      passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
@@ -717,7 +717,7 @@ describe('strategies/bearer-token', () => {
     });
 
     return new Promise((resolve, reject) => {
-      chai.passport.use(strategy)
+      passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
@@ -768,7 +768,7 @@ describe('strategies/bearer-token', () => {
     });
 
     return new Promise((resolve, reject) => {
-      chai.passport.use(strategy)
+      passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
@@ -818,7 +818,7 @@ describe('strategies/bearer-token', () => {
     });
 
     return new Promise((resolve, reject) => {
-      chai.passport.use(strategy)
+      passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
