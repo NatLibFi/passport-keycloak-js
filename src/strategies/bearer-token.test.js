@@ -15,9 +15,7 @@
 *
 */
 
-/* eslint-disable max-lines */
-
-import chai from 'chai';
+import {use} from 'chai';
 import chaiPassportStrategy from 'chai-passport-strategy';
 import assert from 'node:assert';
 import {describe, it, afterEach, beforeEach} from 'node:test';
@@ -27,7 +25,7 @@ import jwt from 'jsonwebtoken';
 
 import Strategy from './bearer-token.js';
 
-chai.use(chaiPassportStrategy);
+const {passport} = use(chaiPassportStrategy);
 
 const {privateKey, publicKey} = generateKeyPairSync('rsa', {modulusLength: 2048, publicKeyEncoding: {type: 'spki', format: 'jwk'}});
 const signOpts = {algorithm: 'RS256', header: {kid: 'foo.keyid'}};
@@ -40,7 +38,7 @@ describe('strategies/bearer-token', () => {
   });
 
   it('Should call success() when token is valid', () => {
-    const scope = nock('http://localhost')
+    const scope = nock('https://localhost')
       .get('/realms/foo/protocol/openid-connect/certs')
       .times(1)
       .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
@@ -56,14 +54,14 @@ describe('strategies/bearer-token', () => {
     const token = jwt.sign(payload, privateKey, signOpts);
 
     const strategy = new Strategy({
-      jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+      jwksUrl: 'https://localhost/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
       audience: 'foo.audience',
       issuer: 'foo.issuer'
     });
 
     return new Promise((resolve, reject) => {
-      chai.passport.use(strategy)
+      passport.use(strategy)
         .fail(() => reject(new Error('Should not call fail()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .success(user => {
@@ -83,7 +81,7 @@ describe('strategies/bearer-token', () => {
   });
 
   it('Should call fail() because of invalid token', () => {
-    const scope = nock('http://localhost')
+    const scope = nock('https://localhost')
       .get('/realms/foo/protocol/openid-connect/certs')
       .times(1)
       .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
@@ -101,14 +99,14 @@ describe('strategies/bearer-token', () => {
     const token = jwt.sign(payload, anotherPrivateKey, signOpts);
 
     const strategy = new Strategy({
-      jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+      jwksUrl: 'https://localhost/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
       audience: 'foo.audience',
       issuer: 'foo.issuer'
     });
 
     return new Promise((resolve, reject) => {
-      chai.passport.use(strategy)
+      passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
@@ -123,7 +121,7 @@ describe('strategies/bearer-token', () => {
   });
 
   it('Should call fail() when token audience is not valid', () => {
-    const scope = nock('http://localhost')
+    const scope = nock('https://localhost')
       .get('/realms/foo/protocol/openid-connect/certs')
       .times(1)
       .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
@@ -139,14 +137,14 @@ describe('strategies/bearer-token', () => {
     const token = jwt.sign(payload, privateKey, signOpts);
 
     const strategy = new Strategy({
-      jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+      jwksUrl: 'https://localhost/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
       audience: 'foo.audience',
       issuer: 'foo.issuer'
     });
 
     return new Promise((resolve, reject) => {
-      chai.passport.use(strategy)
+      passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
@@ -161,7 +159,7 @@ describe('strategies/bearer-token', () => {
   });
 
   it('Should call fail() when token issuer is not valid', () => {
-    const scope = nock('http://localhost')
+    const scope = nock('https://localhost')
       .get('/realms/foo/protocol/openid-connect/certs')
       .times(1)
       .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
@@ -177,14 +175,14 @@ describe('strategies/bearer-token', () => {
     const token = jwt.sign(payload, privateKey, signOpts);
 
     const strategy = new Strategy({
-      jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+      jwksUrl: 'https://localhost/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
       audience: 'foo.audience',
       issuer: 'foo.issuer'
     });
 
     return new Promise((resolve, reject) => {
-      chai.passport.use(strategy)
+      passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
@@ -200,19 +198,19 @@ describe('strategies/bearer-token', () => {
 
 
   it('Should call fail() because of missing token. JWKS endpoint was not queried.', () => {
-    const scope = nock('http://localhost')
+    const scope = nock('https://localhost')
       .get('/realms/foo/protocol/openid-connect/certs')
       .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
 
     const strategy = new Strategy({
-      jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+      jwksUrl: 'https://localhost/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
       audience: 'foo.audience',
       issuer: 'foo.issuer'
     });
 
     return new Promise((resolve, reject) => {
-      chai.passport.use(strategy)
+      passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
@@ -226,7 +224,7 @@ describe('strategies/bearer-token', () => {
   });
 
   it('Should call fail() because of expired token', () => {
-    const scope = nock('http://localhost')
+    const scope = nock('https://localhost')
       .get('/realms/foo/protocol/openid-connect/certs')
       .times(1)
       .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
@@ -243,14 +241,14 @@ describe('strategies/bearer-token', () => {
     const token = jwt.sign(payload, privateKey, signOpts);
 
     const strategy = new Strategy({
-      jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+      jwksUrl: 'https://localhost/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
       audience: 'foo.audience',
       issuer: 'foo.issuer'
     });
 
     return new Promise((resolve, reject) => {
-      chai.passport.use(strategy)
+      passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
@@ -265,7 +263,7 @@ describe('strategies/bearer-token', () => {
   });
 
   it('Should call fail() when alg is not valid', () => {
-    const scope = nock('http://localhost')
+    const scope = nock('https://localhost')
       .get('/realms/foo/protocol/openid-connect/certs')
       .times(1)
       .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
@@ -281,14 +279,14 @@ describe('strategies/bearer-token', () => {
     const token = jwt.sign(payload, privateKey, signOpts);
 
     const strategy = new Strategy({
-      jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+      jwksUrl: 'https://localhost/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS512'],
       audience: 'foo.audience',
       issuer: 'foo.issuer'
     });
 
     return new Promise((resolve, reject) => {
-      chai.passport.use(strategy)
+      passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
@@ -303,7 +301,7 @@ describe('strategies/bearer-token', () => {
   });
 
   it('Service token option enabled: calls success when both tokens are valid()', () => {
-    const scope = nock('http://localhost')
+    const scope = nock('https://localhost')
       .get('/realms/foo/protocol/openid-connect/certs')
       .times(1)
       .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
@@ -328,7 +326,7 @@ describe('strategies/bearer-token', () => {
     const serviceToken = jwt.sign(servicePayload, privateKey, signOpts);
 
     const strategy = new Strategy({
-      jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+      jwksUrl: 'https://localhost/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
       audience: 'foo.audience',
       issuer: 'foo.issuer',
@@ -336,7 +334,7 @@ describe('strategies/bearer-token', () => {
     });
 
     return new Promise((resolve, reject) => {
-      chai.passport.use(strategy)
+      passport.use(strategy)
         .fail(() => reject(new Error('Should not call fail()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .success(user => {
@@ -358,7 +356,7 @@ describe('strategies/bearer-token', () => {
   });
 
   it('Service token option enabled: calls fail() when service token is invalid', () => {
-    const scope = nock('http://localhost')
+    const scope = nock('https://localhost')
       .get('/realms/foo/protocol/openid-connect/certs')
       .times(1)
       .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
@@ -385,7 +383,7 @@ describe('strategies/bearer-token', () => {
     const serviceToken = jwt.sign(servicePayload, anotherPrivateKey, signOpts);
 
     const strategy = new Strategy({
-      jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+      jwksUrl: 'https://localhost/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
       audience: 'foo.audience',
       issuer: 'foo.issuer',
@@ -393,7 +391,7 @@ describe('strategies/bearer-token', () => {
     });
 
     return new Promise((resolve, reject) => {
-      chai.passport.use(strategy)
+      passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
@@ -409,7 +407,7 @@ describe('strategies/bearer-token', () => {
   });
 
   it('Service token option enabled: calls fail() when user token is invalid', () => {
-    const scope = nock('http://localhost')
+    const scope = nock('https://localhost')
       .get('/realms/foo/protocol/openid-connect/certs')
       .times(1)
       .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
@@ -436,7 +434,7 @@ describe('strategies/bearer-token', () => {
     const serviceToken = jwt.sign(servicePayload, privateKey, signOpts);
 
     const strategy = new Strategy({
-      jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+      jwksUrl: 'https://localhost/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
       audience: 'foo.audience',
       issuer: 'foo.issuer',
@@ -444,7 +442,7 @@ describe('strategies/bearer-token', () => {
     });
 
     return new Promise((resolve, reject) => {
-      chai.passport.use(strategy)
+      passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
@@ -460,7 +458,7 @@ describe('strategies/bearer-token', () => {
   });
 
   it('Service token option enabled: should call fail() when service token audience is not valid', () => {
-    const scope = nock('http://localhost')
+    const scope = nock('https://localhost')
       .get('/realms/foo/protocol/openid-connect/certs')
       .times(1)
       .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
@@ -485,7 +483,7 @@ describe('strategies/bearer-token', () => {
     const serviceToken = jwt.sign(servicePayload, privateKey, signOpts);
 
     const strategy = new Strategy({
-      jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+      jwksUrl: 'https://localhost/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
       audience: 'foo.audience',
       issuer: 'foo.issuer',
@@ -493,7 +491,7 @@ describe('strategies/bearer-token', () => {
     });
 
     return new Promise((resolve, reject) => {
-      chai.passport.use(strategy)
+      passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
@@ -509,7 +507,7 @@ describe('strategies/bearer-token', () => {
   });
 
   it('Service token option enabled: should call fail() when user token audience is not valid', () => {
-    const scope = nock('http://localhost')
+    const scope = nock('https://localhost')
       .get('/realms/foo/protocol/openid-connect/certs')
       .times(1)
       .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
@@ -534,7 +532,7 @@ describe('strategies/bearer-token', () => {
     const serviceToken = jwt.sign(servicePayload, privateKey, signOpts);
 
     const strategy = new Strategy({
-      jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+      jwksUrl: 'https://localhost/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
       audience: 'foo.audience',
       issuer: 'foo.issuer',
@@ -542,7 +540,7 @@ describe('strategies/bearer-token', () => {
     });
 
     return new Promise((resolve, reject) => {
-      chai.passport.use(strategy)
+      passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
@@ -558,7 +556,7 @@ describe('strategies/bearer-token', () => {
   });
 
   it('Service token option enabled: should call fail() when service token issuer is not valid', () => {
-    const scope = nock('http://localhost')
+    const scope = nock('https://localhost')
       .get('/realms/foo/protocol/openid-connect/certs')
       .times(1)
       .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
@@ -583,7 +581,7 @@ describe('strategies/bearer-token', () => {
     const serviceToken = jwt.sign(servicePayload, privateKey, signOpts);
 
     const strategy = new Strategy({
-      jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+      jwksUrl: 'https://localhost/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
       audience: 'foo.audience',
       issuer: 'foo.issuer',
@@ -591,7 +589,7 @@ describe('strategies/bearer-token', () => {
     });
 
     return new Promise((resolve, reject) => {
-      chai.passport.use(strategy)
+      passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
@@ -607,7 +605,7 @@ describe('strategies/bearer-token', () => {
   });
 
   it('Service token option enabled: should call fail() when user token issuer is not valid', () => {
-    const scope = nock('http://localhost')
+    const scope = nock('https://localhost')
       .get('/realms/foo/protocol/openid-connect/certs')
       .times(1)
       .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
@@ -632,7 +630,7 @@ describe('strategies/bearer-token', () => {
     const serviceToken = jwt.sign(servicePayload, privateKey, signOpts);
 
     const strategy = new Strategy({
-      jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+      jwksUrl: 'https://localhost/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
       audience: 'foo.audience',
       issuer: 'foo.issuer',
@@ -640,7 +638,7 @@ describe('strategies/bearer-token', () => {
     });
 
     return new Promise((resolve, reject) => {
-      chai.passport.use(strategy)
+      passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
@@ -656,7 +654,7 @@ describe('strategies/bearer-token', () => {
   });
 
   it('Service token option enabled: Should call fail() because of missing service token. Does not make call to JWKS endpoint.', () => {
-    const scope = nock('http://localhost')
+    const scope = nock('https://localhost')
       .get('/realms/foo/protocol/openid-connect/certs')
       .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
 
@@ -671,7 +669,7 @@ describe('strategies/bearer-token', () => {
     const token = jwt.sign(payload, privateKey, signOpts);
 
     const strategy = new Strategy({
-      jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+      jwksUrl: 'https://localhost/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
       audience: 'foo.audience',
       issuer: 'foo.issuer',
@@ -679,7 +677,7 @@ describe('strategies/bearer-token', () => {
     });
 
     return new Promise((resolve, reject) => {
-      chai.passport.use(strategy)
+      passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
@@ -696,7 +694,7 @@ describe('strategies/bearer-token', () => {
   });
 
   it('Service token option enabled: Should call fail() because of missing user token. Does not make call to JWKS endpoint.', () => {
-    const scope = nock('http://localhost')
+    const scope = nock('https://localhost')
       .get('/realms/foo/protocol/openid-connect/certs')
       .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
 
@@ -711,7 +709,7 @@ describe('strategies/bearer-token', () => {
     const serviceToken = jwt.sign(servicePayload, privateKey, signOpts);
 
     const strategy = new Strategy({
-      jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+      jwksUrl: 'https://localhost/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
       audience: 'foo.audience',
       issuer: 'foo.issuer',
@@ -719,7 +717,7 @@ describe('strategies/bearer-token', () => {
     });
 
     return new Promise((resolve, reject) => {
-      chai.passport.use(strategy)
+      passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
@@ -736,7 +734,7 @@ describe('strategies/bearer-token', () => {
   });
 
   it('Service token option enabled: Should call fail() because of expired service token', () => {
-    const scope = nock('http://localhost')
+    const scope = nock('https://localhost')
       .get('/realms/foo/protocol/openid-connect/certs')
       .times(1)
       .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
@@ -762,7 +760,7 @@ describe('strategies/bearer-token', () => {
     const serviceToken = jwt.sign(servicePayload, privateKey, signOpts);
 
     const strategy = new Strategy({
-      jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+      jwksUrl: 'https://localhost/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
       audience: 'foo.audience',
       issuer: 'foo.issuer',
@@ -770,7 +768,7 @@ describe('strategies/bearer-token', () => {
     });
 
     return new Promise((resolve, reject) => {
-      chai.passport.use(strategy)
+      passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
@@ -786,7 +784,7 @@ describe('strategies/bearer-token', () => {
   });
 
   it('Service token option enabled: Should call fail() because of expired user token', () => {
-    const scope = nock('http://localhost')
+    const scope = nock('https://localhost')
       .get('/realms/foo/protocol/openid-connect/certs')
       .times(1)
       .reply(200, {keys: [{...publicKey, kid: 'foo.keyid', alg: 'RS256'}]});
@@ -812,7 +810,7 @@ describe('strategies/bearer-token', () => {
     const serviceToken = jwt.sign(servicePayload, privateKey, signOpts);
 
     const strategy = new Strategy({
-      jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+      jwksUrl: 'https://localhost/realms/foo/protocol/openid-connect/certs',
       algorithms: ['RS256'],
       audience: 'foo.audience',
       issuer: 'foo.issuer',
@@ -820,7 +818,7 @@ describe('strategies/bearer-token', () => {
     });
 
     return new Promise((resolve, reject) => {
-      chai.passport.use(strategy)
+      passport.use(strategy)
         .success(() => reject(new Error('Should not call success()')))
         .error(err => reject(new Error(`Should not call error(): ${err.stack}`)))
         .fail(() => {
@@ -838,7 +836,7 @@ describe('strategies/bearer-token', () => {
   it('Should disallow use of algorithm that is not in allowed algorithms list (one algorithm)', () => {
     assert.throws(() => {
       new Strategy({
-        jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+        jwksUrl: 'https://localhost/realms/foo/protocol/openid-connect/certs',
         algorithms: ['HS256'],
         audience: 'foo.audience',
         issuer: 'foo.issuer',
@@ -850,7 +848,7 @@ describe('strategies/bearer-token', () => {
   it('Should disallow use of algorithm that is not in allowed algorithms list (multiple algorithms, one disallowed)', () => {
     assert.throws(() => {
       new Strategy({
-        jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+        jwksUrl: 'https://localhost/realms/foo/protocol/openid-connect/certs',
         algorithms: ['RS256', 'HS256'],
         audience: 'foo.audience',
         issuer: 'foo.issuer',
@@ -862,12 +860,24 @@ describe('strategies/bearer-token', () => {
   it('Should disallow use of empty algorithm array', () => {
     assert.throws(() => {
       new Strategy({
-        jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+        jwksUrl: 'https://localhost/realms/foo/protocol/openid-connect/certs',
         algorithms: [],
         audience: 'foo.audience',
         issuer: 'foo.issuer',
         serviceAuthHeader: 'customHeader'
       });
     }, new Error('Algorithm definitions are missing. Define at least one approved algorithm.'))
+  })
+
+  it('Should disallow use of JWKS url that does not use HTTPS', () => {
+    assert.throws(() => {
+      new Strategy({
+        jwksUrl: 'http://localhost/realms/foo/protocol/openid-connect/certs',
+        algorithms: ['RS256'],
+        audience: 'foo.audience',
+        issuer: 'foo.issuer',
+        serviceAuthHeader: 'customHeader'
+      });
+    }, new Error('JWKS URL must use HTTPS'))
   })
 });

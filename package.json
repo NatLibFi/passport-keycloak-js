@@ -5,16 +5,15 @@
     "name": "The National Library of Finland"
   },
   "keywords": [],
-  "homepage": "https://github.com/natlibfi/passport-keycloak-js",
+  "homepage": "https://www.npmjs.com/package/@natlibfi/passport-keycloak",
   "bugs": {
     "url": "https://github.com/natlibfi/passport-keycloak-js/issues"
   },
   "repository": {
-    "type": "git",
-    "url": "git@github.com:natlibfi/passport-keycloak-js.git"
+    "url": "https://github.com/NatLibFi/passport-keycloak-js"
   },
   "license": "MIT",
-  "version": "3.0.1",
+  "version": "3.0.3-alpha.1",
   "main": "./dist/index.js",
   "type": "module",
   "publishConfig": {
@@ -29,7 +28,7 @@
     "build:analyze": "npm run build -- --analyze",
     "lint": "eslint ./src",
     "lint:dev": "eslint --fix ./src",
-    "test:base": "node --test",
+    "test:base": "node --test src/**/*.test.js",
     "test:report": "npm run test:base -- --experimental-test-coverage --test-reporter=spec",
     "test": "npm run lint && npm run test:base",
     "watch:test": "cross-env NODE_ENV=test node --watch --test",
@@ -37,17 +36,17 @@
     "dev:debug": "cross-env LOG_LEVEL=debug DEBUG=@natlibfi/* NODE_ENV=test npm run watch:test"
   },
   "dependencies": {
-    "debug": "^4.4.1",
-    "http-status": "^1.8.1",
+    "debug": "^4.4.3",
+    "http-status": "^2.1.0",
     "jsonwebtoken": "^9.0.2",
     "passport-strategy": "^1.0.0"
   },
   "devDependencies": {
-    "chai": "^4.5.0",
+    "chai": "^6.2.1",
     "chai-passport-strategy": "^3.0.0",
-    "cross-env": "^7.0.3",
-    "esbuild": "^0.25.9",
-    "eslint": "^9.34.0",
+    "cross-env": "^10.1.0",
+    "esbuild": "^0.27.0",
+    "eslint": "^9.39.1",
     "nock": "^14.0.10"
   }
 }
