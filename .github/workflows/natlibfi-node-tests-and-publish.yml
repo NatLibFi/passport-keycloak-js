@@ -71,7 +71,10 @@ jobs:
         with:
           node-version: '22.x'
           registry-url: 'https://registry.npmjs.org'
-      - name: Update npm
+      # Incremental update needed as of now, see https://github.com/npm/cli/issues/9151#issuecomment-4129185112
+      - name: Update npm to 11.11.0
+        run: npm install -g npm@11.11.0
+      - name: Update npm to latest
         run: npm install -g npm@latest
       - name: Clean install
         run: npm ci
