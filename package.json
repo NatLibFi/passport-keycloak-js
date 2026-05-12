@@ -10,7 +10,8 @@
     "url": "https://github.com/natlibfi/passport-keycloak-js/issues"
   },
   "repository": {
-    "url": "https://github.com/NatLibFi/passport-keycloak-js"
+    "type": "git",
+    "url": "git+https://github.com/NatLibFi/passport-keycloak-js.git"
   },
   "license": "MIT",
   "version": "3.0.8",
@@ -23,7 +24,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "prepublishOnly": "npm run build",
+    "prepare": "npm run build",
     "build": "esbuild \"src/**/*.js\"  --sourcemap --platform=node --outdir=dist",
     "build:analyze": "npm run build -- --analyze",
     "lint": "eslint ./src",
