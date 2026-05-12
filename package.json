@@ -24,7 +24,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "prepare": "npm run build",
+    "prepublishOnly": "npm run build",
     "build": "esbuild \"src/**/*.js\"  --sourcemap --platform=node --outdir=dist",
     "build:analyze": "npm run build -- --analyze",
     "lint": "eslint ./src",
