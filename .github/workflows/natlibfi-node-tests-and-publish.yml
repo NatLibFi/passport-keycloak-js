@@ -68,11 +68,8 @@ jobs:
         with:
           node-version: '24.x'
           registry-url: 'https://registry.npmjs.org'
-      # Update npm to latest
-      - name: Update npm to latest
-        run: npm install -g npm@latest
       - name: Clean install
-        run: npm ci --ignore-scripts
+        run: npm ci --ignore-scripts --min-release-age=7
       # Publish stable release with --tag latest
       - name: Publish stable release
         if: ${{!contains(github.ref, '-alpha')}}
