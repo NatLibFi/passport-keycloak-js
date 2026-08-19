@@ -1,4 +1,4 @@
-name: NatLibFi node tests
+name: NatLibFi KB node tests
 
 on: push
 
@@ -20,22 +20,19 @@ jobs:
     - name: Checkout the code
       uses: actions/checkout@v7
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v6
+      uses: actions/setup-node@v7
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-      env:
-        NPM_CONFIG_IGNORE_SCRIPTS: true
-    - run: npm update
-    - run: npm audit --package-lock-only --production --audit-level=high
-    - run: npm ci
+    - run: npm audit --package-lock-only --production --audit-level=moderate
+    - run: npm ci --ignore-scripts --min-release-age=7
     - run: npm test
     - run: npm run build --if-present
 
   license-scan:
     name: License compliance check
     runs-on: ubuntu-latest
-    container: node:22
+    container: node:24
 
     steps:
       - uses: actions/checkout@v7
@@ -46,7 +43,7 @@ jobs:
   njsscan:
     name: Njsscan check
     runs-on: ubuntu-latest
-    container: node:22
+    container: node:24
 
     steps:
     - name: Checkout the code
@@ -59,7 +56,7 @@ jobs:
 
   publish:
     runs-on: ubuntu-latest
-    container: node:22
+    container: node:24
     needs: [build-node-versions, license-scan, njsscan]
     if: contains(github.ref, 'refs/tags/')
 
@@ -67,17 +64,15 @@ jobs:
       - uses: actions/checkout@v7
       # Setup .npmrc file to publish to npm
       - name: Prepare node for publish
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
-          node-version: '22.x'
+          node-version: '24.x'
           registry-url: 'https://registry.npmjs.org'
-      # Incremental update needed as of now, see https://github.com/npm/cli/issues/9151#issuecomment-4129185112
-      - name: Update npm to 11.11.0
-        run: npm install -g npm@11.11.0
+      # Update npm to latest
       - name: Update npm to latest
         run: npm install -g npm@latest
       - name: Clean install
-        run: npm ci
+        run: npm ci --ignore-scripts
       # Publish stable release with --tag latest
       - name: Publish stable release
         if: ${{!contains(github.ref, '-alpha')}}
